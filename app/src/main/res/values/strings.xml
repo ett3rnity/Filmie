@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Filmie</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="mApiKey">1cf389af1a0ead5ea09eb1849d88a44a</string>
+</resources>

@@ -13,6 +13,6 @@ import retrofit2.http.Query;
 public interface TMDBApi {
 
     @GET("/3/movie/popular")
-    Call<MovieListPopular>getPopularList(@Query("api_key") String mApiKey);
+    Call<MovieListPopular> getPopularList(@Query("api_key") String mApiKey);
 
 }

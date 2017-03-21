@@ -1,12 +1,17 @@
 package com.alexanderivanets.filmie;
 
+import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +28,7 @@ import android.view.MenuItem;
 import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.alexanderivanets.filmie.network.popularmovies.MovieListPopular;
@@ -49,14 +55,17 @@ import static android.R.attr.bitmap;
 * 3)add information from movieListPopular to every card
 *
 *
+* delete:
+* PopularMoviesInitialization
+*
 * */
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,FragmentPopular.OnFragmentInteractionListener {
 
-    MovieListPopular mlp;
-    RecyclerView main_recyclerView;
-    Bitmap poster;//in future rewrite it out of global var
+    ProgressBar progressBar_main;
+    FragmentManager fragmentManager;
+    android.support.v4.app.Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +78,12 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Add fab to every card to add film", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
             }
         });
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -84,24 +95,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //hardcode
-        PopularMoviesInitialization retreiveData = new PopularMoviesInitialization();
-        mlp = retreiveData.getMovieListPopular();
-        int i=0;
-        //works nice,stores data into mlp
-        main_recyclerView = (RecyclerView)findViewById(R.id.main_recyclerView);
-        LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        main_recyclerView.setLayoutManager(llm);
+        progressBar_main = (ProgressBar)findViewById(R.id.progressbar_main);
 
 
-        ArrayList<String> urlList = createUrlList(mlp.getResults().size());
-
-        CardAdapter cardAdapter = new CardAdapter(createList(mlp.getResults().size()), urlList,
-                getApplicationContext());
-
-        main_recyclerView.setAdapter(cardAdapter);
-        //
 
 
     }
@@ -144,60 +140,83 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        fragment = null;
+        Class fragmentClass = null;
+
+        if (id == R.id.nav_popular) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
 
-        } else if (id == R.id.nav_slideshow) {
 
-        } else if (id == R.id.nav_manage) {
+            fragmentClass = FragmentPopular.class;
 
-        } else if (id == R.id.nav_share) {
+            try {
+                fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+             fragmentManager = getSupportFragmentManager();
+            ////transaction move to part,where it is done
+            fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
 
-        } else if (id == R.id.nav_send) {
+          //CreateFragment createFragment = new CreateFragment();
+          //createFragment.execute(fragmentClass);
+
+        } else if (id == R.id.nav_mostWanted) {
+
+        } else if (id == R.id.nav_myMovieList) {
+
+        } else if (id == R.id.nav_nowPlaying) {
+
+        } else if (id == R.id.nav_searchForMovie) {
+
+        } else if (id == R.id.nav_upcoming) {
 
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+
+
         return true;
     }
 
-
-    //set info into card function
-    public List<CardInfo> createList(int size){
-        List<CardInfo> list = new ArrayList<CardInfo>();
-
-        for(int i=0;i<size;i++){
-            CardInfo ci = new CardInfo();
+    @Override
+    public void onFragmentInteraction() {
+        //fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
+    }
 
 
-            ci.setmFilmName(mlp.getResults().get(i).getOriginalTitle());
-            ci.setmFilmId(mlp.getResults().get(i).getId().toString());
-
-            CardAdapter adapter =(CardAdapter) main_recyclerView.getAdapter();//hzhz
-
-                ci.setmFilmStat(BitmapFactory.decodeResource(getResources(),R.drawable.star_notclicked));
-
-            list.add(ci);
+    public class CreateFragment extends AsyncTask<Class,Void, android.support.v4.app.Fragment>{
+        @Override
+        protected void onPreExecute() {
+            //progressBar_main.setVisibility(View.VISIBLE);
         }
-        return list;
-    }
 
-
-    public ArrayList<String> createUrlList(int size){
-
-            ArrayList<String> list = new ArrayList<>();
-
-            for(int i=0;i<size;i++) {
-                String picturePath = "http://image.tmdb.org/t/p/w300/" + mlp.getResults().get(i)
-                        .getBackdropPath();
-
-                list.add(picturePath);
+        @Override
+        protected android.support.v4.app.Fragment doInBackground(Class... classes) {
+            Class fragmentClass = classes[0];
+            try {
+                fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
             }
-        return list;
-    }
+            fragmentManager = getSupportFragmentManager();
+            ////transaction move to part,where it is done
+            fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
 
+            return fragment;
+        }
+
+        @Override
+        protected void onPostExecute(android.support.v4.app.Fragment fragment) {
+            //progressBar_main.setVisibility(View.INVISIBLE);
+
+        }
+    }
 
 
 }

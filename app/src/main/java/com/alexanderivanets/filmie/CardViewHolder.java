@@ -18,13 +18,10 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     public CardViewHolder(View itemView) {
         super(itemView);
 
-        mFilmName = (TextView)itemView.findViewById(R.id.card_view_tv_filmName);
-        mFilmStat = (ImageView)itemView.findViewById(R.id.card_view_iv_filmStat);
-        mFilmPic = (ImageView)itemView.findViewById(R.id.card_view_iv_filmPic);
+        mFilmName = (TextView) itemView.findViewById(R.id.card_view_tv_filmName);
+        mFilmStat = (ImageView) itemView.findViewById(R.id.card_view_iv_filmStat);
+        mFilmPic = (ImageView) itemView.findViewById(R.id.card_view_iv_filmPic);
     }
-
-
-
 
 
 }

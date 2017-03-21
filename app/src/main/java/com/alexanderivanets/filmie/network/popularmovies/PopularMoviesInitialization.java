@@ -20,12 +20,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PopularMoviesInitialization {
 
-    private  TMDBApi tmdbApi;
+    private TMDBApi tmdbApi;
     private Retrofit retrofit;
 
     private MovieListPopular movieListPopular;
 
-    public PopularMoviesInitialization(){
+    public PopularMoviesInitialization() {
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.themoviedb.org/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -33,6 +33,21 @@ public class PopularMoviesInitialization {
 
         tmdbApi = retrofit.create(TMDBApi.class);
 
+       // GetPopularMoviesInfo getPopularMoviesInfo = new GetPopularMoviesInfo();
+        /*
+        try {
+            getPopularMoviesInfo.execute().get(); ///v etom meste gruzit
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        */
+        //getPopularMoviesInfo.execute();
+
+    }
+
+    public MovieListPopular getMovieListPopular() {
         GetPopularMoviesInfo getPopularMoviesInfo = new GetPopularMoviesInfo();
         try {
             getPopularMoviesInfo.execute().get();
@@ -41,17 +56,11 @@ public class PopularMoviesInitialization {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
-    }
-
-    public MovieListPopular getMovieListPopular(){
-
         return this.movieListPopular;
 
     }
 
-    public class GetPopularMoviesInfo extends AsyncTask<Void, MovieListPopular, MovieListPopular>
-    {
+    public class GetPopularMoviesInfo extends AsyncTask<Void, MovieListPopular, MovieListPopular> {
         @Override
         protected MovieListPopular doInBackground(Void... voids) {
             Response<MovieListPopular> response = null;

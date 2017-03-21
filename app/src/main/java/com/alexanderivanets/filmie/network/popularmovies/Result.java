@@ -2,6 +2,7 @@
 package com.alexanderivanets.filmie.network.popularmovies;
 
 import java.util.List;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

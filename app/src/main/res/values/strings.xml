@@ -6,4 +6,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="mApiKey">1cf389af1a0ead5ea09eb1849d88a44a</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

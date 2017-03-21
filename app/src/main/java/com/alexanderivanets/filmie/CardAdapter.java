@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * Created by Саня on 14.03.2017.
-
  */
 
 public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
@@ -24,7 +23,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
     private Context context;
 
 
-    public CardAdapter(List<CardInfo> cardList, List<String> urlList, Context context){
+    public CardAdapter(List<CardInfo> cardList, List<String> urlList, Context context) {
         this.cardList = cardList;
         this.urlList = urlList;
         this.context = context;
@@ -38,7 +37,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
 
     @Override
     public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_cardview,parent,false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_cardview, parent, false);
 
         return new CardViewHolder(itemView);
     }
@@ -61,9 +60,6 @@ public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
 
 
     }
-
-
-
 
 
     @Override

@@ -15,36 +15,36 @@ public class CardInfo {
     private String mFilmId;
 
 
-    public void setmFilmName(String mFileName){
+    public void setmFilmName(String mFileName) {
         this.mFilmName = mFileName;
     }
 
 
-    public void setmFilmId(String mFilmId){
+    public void setmFilmId(String mFilmId) {
         this.mFilmId = mFilmId;
     }
 
-    public String getmFilmId(){
+    public String getmFilmId() {
         return this.mFilmId;
     }
 
-    public Bitmap getmFilmPic(){
+    public Bitmap getmFilmPic() {
         return this.mFilmPic;
     }
 
-    public String getmFilmName(){
+    public String getmFilmName() {
         return this.mFilmName;
     }
 
-    public void setmFilmPic(Bitmap mFilmPic){
+    public void setmFilmPic(Bitmap mFilmPic) {
         this.mFilmPic = mFilmPic;
     }
 
-    public void setmFilmStat(Bitmap mFilmStat){
+    public void setmFilmStat(Bitmap mFilmStat) {
         this.mFilmStat = mFilmStat;
     }
 
-    public Bitmap getmFilmStat(){
+    public Bitmap getmFilmStat() {
         return this.mFilmStat;
     }
 

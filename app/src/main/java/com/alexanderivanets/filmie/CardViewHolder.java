@@ -1,5 +1,6 @@
 package com.alexanderivanets.filmie;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -14,6 +15,7 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
     TextView mFilmName;
     ImageView mFilmStat;
     ImageView mFilmPic;
+    TextView mFilmId;
 
     public CardViewHolder(View itemView) {
         super(itemView);
@@ -21,6 +23,18 @@ public class CardViewHolder extends RecyclerView.ViewHolder {
         mFilmName = (TextView) itemView.findViewById(R.id.card_view_tv_filmName);
         mFilmStat = (ImageView) itemView.findViewById(R.id.card_view_iv_filmStat);
         mFilmPic = (ImageView) itemView.findViewById(R.id.card_view_iv_filmPic);
+        mFilmId = (TextView) itemView.findViewById(R.id.card_view_tv_filmId);
+
+
+        mFilmPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(),FilmInfoActivity.class);
+                String filmId = mFilmId.getText().toString();
+                intent.putExtra("id",filmId);
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
 

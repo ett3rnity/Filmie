@@ -1,11 +1,9 @@
-package com.alexanderivanets.filmie;
+package com.alexanderivanets.filmie.network.popularmovies;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,8 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.alexanderivanets.filmie.CardAdapter;
+import com.alexanderivanets.filmie.CardInfo;
+import com.alexanderivanets.filmie.R;
 import com.alexanderivanets.filmie.network.TMDBApi;
-import com.alexanderivanets.filmie.network.popularmovies.MovieListPopular;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,12 +29,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FragmentPopular.OnFragmentInteractionListener} interface
+ * {@link FragmentPopular.OnFragmentPopualarInteractionListener} interface
  * to handle interaction events.
  * Use the {@link FragmentPopular#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FragmentPopular extends Fragment {
+public class FragmentPopular extends Fragment  {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -44,15 +44,17 @@ public class FragmentPopular extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private OnFragmentPopualarInteractionListener mListener;
 
-    RecyclerView main_recyclerView;
+    RecyclerView popular_recyclerView;
     CardAdapter cardAdapter;
+    ProgressBar progressBar_popular;
 
     private TMDBApi tmdbApi;
     private Retrofit retrofit;
 
     private MovieListPopular movieListPopular;
+    private String page = "1";
 
 
     public FragmentPopular() {
@@ -95,16 +97,16 @@ public class FragmentPopular extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v =  inflater.inflate(R.layout.fragment_fragment_popular, container, false);
-        ProgressBar progressBar_popular = (ProgressBar)v.findViewById(R.id.progressbar_popular);
+        progressBar_popular = (ProgressBar)v.findViewById(R.id.progressbar_popular);
         progressBar_popular.setVisibility(View.VISIBLE);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
 
 
-        main_recyclerView = (RecyclerView) v.findViewById(R.id.main_recyclerView);
-        main_recyclerView.setHasFixedSize(true);
-        main_recyclerView.setLayoutManager(llm);
-        main_recyclerView.setAdapter(new RecyclerView.Adapter() {
+        popular_recyclerView = (RecyclerView) v.findViewById(R.id.popular_recyclerView);
+        popular_recyclerView.setHasFixedSize(true);
+        popular_recyclerView.setLayoutManager(llm);
+        popular_recyclerView.setAdapter(new RecyclerView.Adapter() {
             @Override
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 return null;
@@ -121,12 +123,32 @@ public class FragmentPopular extends Fragment {
             }
         });
         //hardcode
+
+        popular_recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager llm1 = (LinearLayoutManager)recyclerView.getLayoutManager();
+                int lastvisiblepos = llm1.findLastCompletelyVisibleItemPosition();
+                if (lastvisiblepos !=RecyclerView.NO_POSITION && lastvisiblepos == cardAdapter.getItemCount() -1){
+                    GetPopularMoviesInfo getPopularMoviesInfo = new GetPopularMoviesInfo();
+                    getPopularMoviesInfo.execute();
+                }
+            }
+        });
+
         GetPopularMoviesInfo getPopularMoviesInfo = new GetPopularMoviesInfo();
         getPopularMoviesInfo.execute();
 
 
         return v;
     }
+
 
 
     public class GetPopularMoviesInfo extends AsyncTask<Void, MovieListPopular, MovieListPopular> {
@@ -141,7 +163,7 @@ public class FragmentPopular extends Fragment {
 
             Response<MovieListPopular> response = null;
             try {
-                response = tmdbApi.getPopularList("1cf389af1a0ead5ea09eb1849d88a44a").execute();
+                response = tmdbApi.getPopularList("1cf389af1a0ead5ea09eb1849d88a44a",page).execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -154,10 +176,21 @@ public class FragmentPopular extends Fragment {
             super.onPostExecute(movieListPopular);
             ArrayList<String> urlList = createUrlList(movieListPopular.getResults().size(),movieListPopular);
 
-            cardAdapter = new CardAdapter(createList(movieListPopular.getResults().size(),movieListPopular), urlList,
-                    getContext());
+            if(cardAdapter==null) {
+                cardAdapter = new CardAdapter(createList(movieListPopular.getResults().size(), movieListPopular), urlList,
+                        getContext());
+                popular_recyclerView.setAdapter(cardAdapter);
+            }
+            else{
+                cardAdapter.addInfoCardAdapter(createList(movieListPopular.getResults().size(), movieListPopular), urlList);
+                cardAdapter.notifyDataSetChanged();
+            }
 
-            main_recyclerView.setAdapter(cardAdapter);
+
+            progressBar_popular.setVisibility(View.INVISIBLE);
+            int pageval = Integer.valueOf(page);
+            pageval++;
+            page = String.valueOf(pageval);
         }
     }
 
@@ -174,11 +207,11 @@ public class FragmentPopular extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnFragmentPopualarInteractionListener) {
+            mListener = (OnFragmentPopualarInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnFragmentPopualarInteractionListener");
         }
     }
 
@@ -198,7 +231,7 @@ public class FragmentPopular extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnFragmentPopualarInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction();
     }
@@ -221,8 +254,6 @@ public class FragmentPopular extends Fragment {
             ci.setmFilmName(movieListPopular.getResults().get(i).getOriginalTitle());
             ci.setmFilmId(movieListPopular.getResults().get(i).getId().toString());
 
-            //CardAdapter adapter = (CardAdapter) main_recyclerView.getAdapter();//hzhz
-
             ci.setmFilmStat(BitmapFactory.decodeResource(getResources(), R.drawable.star_notclicked));
 
             list.add(ci);
@@ -236,7 +267,7 @@ public class FragmentPopular extends Fragment {
         ArrayList<String> list = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            String picturePath = "http://image.tmdb.org/t/p/w300/" + movieListPopular.getResults().get(i)
+            String picturePath = "http://image.tmdb.org/t/p/w500/" + movieListPopular.getResults().get(i)
                     .getBackdropPath();
 
             list.add(picturePath);

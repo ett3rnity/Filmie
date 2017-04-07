@@ -1,21 +1,12 @@
 package com.alexanderivanets.filmie;
 
-import android.app.Fragment;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,23 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Adapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.view.WindowManager;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.alexanderivanets.filmie.network.popularmovies.MovieListPopular;
-import com.alexanderivanets.filmie.network.popularmovies.PopularMoviesInitialization;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.R.attr.bitmap;
+import com.alexanderivanets.filmie.network.popularmovies.FragmentPopular;
+import com.alexanderivanets.filmie.network.upcoming.FragmentUpcoming;
 
 
 /*
@@ -56,14 +35,14 @@ import static android.R.attr.bitmap;
 *
 *
 * delete:
-* PopularMoviesInitialization
+*
 *
 * */
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,FragmentPopular.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        FragmentPopular.OnFragmentPopualarInteractionListener,FragmentUpcoming.OnFragmentUpcomingInteractionListener {
 
-    ProgressBar progressBar_main;
     FragmentManager fragmentManager;
     android.support.v4.app.Fragment fragment;
 
@@ -72,7 +51,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Justify");
         setSupportActionBar(toolbar);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -94,11 +75,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        progressBar_main = (ProgressBar)findViewById(R.id.progressbar_main);
-
-
-
 
     }
 
@@ -162,8 +138,7 @@ public class MainActivity extends AppCompatActivity
             ////transaction move to part,where it is done
             fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
 
-          //CreateFragment createFragment = new CreateFragment();
-          //createFragment.execute(fragmentClass);
+
 
         } else if (id == R.id.nav_mostWanted) {
 
@@ -174,7 +149,22 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_searchForMovie) {
 
         } else if (id == R.id.nav_upcoming) {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
 
+
+            fragmentClass = FragmentUpcoming.class;
+
+            try {
+                fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            fragmentManager = getSupportFragmentManager();
+            ////transaction move to part,where it is done
+            fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
         }
 
 
@@ -188,35 +178,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public class CreateFragment extends AsyncTask<Class,Void, android.support.v4.app.Fragment>{
-        @Override
-        protected void onPreExecute() {
-            //progressBar_main.setVisibility(View.VISIBLE);
-        }
 
-        @Override
-        protected android.support.v4.app.Fragment doInBackground(Class... classes) {
-            Class fragmentClass = classes[0];
-            try {
-                fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            fragmentManager = getSupportFragmentManager();
-            ////transaction move to part,where it is done
-            fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
-
-            return fragment;
-        }
-
-        @Override
-        protected void onPostExecute(android.support.v4.app.Fragment fragment) {
-            //progressBar_main.setVisibility(View.INVISIBLE);
-
-        }
-    }
 
 
 }

@@ -1,16 +1,14 @@
 package com.alexanderivanets.filmie;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
+import com.alexanderivanets.filmie.MVPAttempt.CardInfo;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,23 +18,20 @@ import java.util.List;
 public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
 
     private List<CardInfo> cardList;
-    private List<String> urlList;
     private Context context;
 
 
     CardInfo ci;
 
 
-    public CardAdapter(List<CardInfo> cardList, List<String> urlList, Context context) {
+    public CardAdapter(List<CardInfo> cardList, Context context) {
 
         this.cardList = cardList;
-        this.urlList = urlList;
         this.context = context;
     }
 
-    public void addInfoCardAdapter(List<CardInfo> cardList, List<String> urlList){
+    public void addInfoCardAdapter(List<CardInfo> cardList){
         this.cardList.addAll(cardList);
-        this.urlList.addAll(urlList);
     }
 
 
@@ -60,15 +55,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
         holder.mFilmStat.setImageBitmap(ci.getmFilmStat());
         holder.mFilmId.setText(ci.getmFilmId());
 
-        Picasso.with(context).load(urlList.get(position)).fit().into(holder.mFilmPic);
-
-        holder.mFilmStat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change picture after clicking->saving to marked
-            }
-        });
-
+        Picasso.with(context).load(cardList.get(position).getmTrailerPath()).fit().into(holder.mFilmPic);
 
 
     }

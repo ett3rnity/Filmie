@@ -1,8 +1,7 @@
 package com.alexanderivanets.filmie;
 
-import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Build;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,35 +15,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.WindowManager;
-import android.widget.ProgressBar;
 
-import com.alexanderivanets.filmie.network.popularmovies.FragmentPopular;
-import com.alexanderivanets.filmie.network.upcoming.FragmentUpcoming;
+import com.alexanderivanets.filmie.MVPAttempt.popular.PopularView;
+import com.alexanderivanets.filmie.MVPAttempt.settings.SettingsActivity;
+import com.alexanderivanets.filmie.MVPAttempt.upcoming.UpcomingView;
+import com.alexanderivanets.filmie.MVPAttempt.userfilmlist.UserFilmListView;
 
-
-/*
-*
-* connect->json->parse json->movieList->movie->card->card adapter->Activity
-*connect: +
-*json:+
-* to do list:
-* 1)picasso for picture downloads
-* 2)connect cardview adapter with activity
-* 3)add information from movieListPopular to every card
-*
-*
-* delete:
-*
-*
-* */
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        FragmentPopular.OnFragmentPopualarInteractionListener,FragmentUpcoming.OnFragmentUpcomingInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     FragmentManager fragmentManager;
     android.support.v4.app.Fragment fragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +87,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -117,7 +102,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         fragment = null;
-        Class fragmentClass = null;
+        Class fragmentClass;
 
         if (id == R.id.nav_popular) {
             // Handle the camera action
@@ -125,7 +110,7 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
 
 
-            fragmentClass = FragmentPopular.class;
+            fragmentClass = PopularView.class;
 
             try {
                 fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
@@ -143,6 +128,22 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_mostWanted) {
 
         } else if (id == R.id.nav_myMovieList) {
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+
+
+            fragmentClass = UserFilmListView.class;
+
+            try {
+                fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            fragmentManager = getSupportFragmentManager();
+            ////transaction move to part,where it is done
+            fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
 
         } else if (id == R.id.nav_nowPlaying) {
 
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
 
 
-            fragmentClass = FragmentUpcoming.class;
+            fragmentClass = UpcomingView.class;
 
             try {
                 fragment = (android.support.v4.app.Fragment) fragmentClass.newInstance();
@@ -172,10 +173,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onFragmentInteraction() {
-        //fragmentManager.beginTransaction().replace(R.id.fl_content,fragment).commit();
-    }
+
 
 
 

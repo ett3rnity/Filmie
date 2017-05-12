@@ -5,11 +5,6 @@
     android:layout_height="wrap_content">
 
 
-    <ImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:id="@+id/iv_youtubeblock_stat"/>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,23 +12,36 @@
         android:text="header"
         android:textSize="20sp"
         android:textColor="#93104d"
-        android:layout_toRightOf="@id/iv_youtubeblock_stat"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>
 
-        <com.google.android.youtube.player.YouTubePlayerView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/youtube_player_block"
-            android:layout_toRightOf="@id/iv_youtubeblock_stat"
-            android:layout_below="@id/iv_youtubeblock_stat"
+
+        <RelativeLayout
+            android:layout_width="250dp"
+            android:layout_height="150dp"
+            android:id="@+id/rl_thumbnail"
+            android:layout_below="@id/tv_youtubeblock_head"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp">
 
-        </com.google.android.youtube.player.YouTubePlayerView>
+            <com.google.android.youtube.player.YouTubeThumbnailView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/youtube_player_block"
+                >
+
+            </com.google.android.youtube.player.YouTubeThumbnailView>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/youtube_icon_red_48px"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
 
 
 

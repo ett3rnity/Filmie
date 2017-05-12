@@ -18,8 +18,10 @@
 
     <item android:title="My Filmie">
         <menu>
+            <group android:checkableBehavior="single">
             <item android:id="@+id/nav_myMovieList"
                 android:title="My movie list" />
+            </group>
         </menu>
     </item>
 

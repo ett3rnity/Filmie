@@ -1,5 +1,5 @@
 
-package com.alexanderivanets.filmie.network.popularmovies;
+package com.alexanderivanets.filmie.MVPAttempt.popular;
 
 import java.util.List;
 

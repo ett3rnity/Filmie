@@ -1,12 +1,12 @@
 
-package com.alexanderivanets.filmie.network.popularmovies;
+package com.alexanderivanets.filmie.MVPAttempt.popular;
 
 import java.util.List;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class MovieListPopular {
+public class PopularModel {
 
     @SerializedName("page")
     @Expose

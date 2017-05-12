@@ -1,11 +1,11 @@
 
-package com.alexanderivanets.filmie.network.upcoming;
+package com.alexanderivanets.filmie.MVPAttempt.searchfilm;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class MovieListUpcoming {
+public class SearchFilmResponse {
 
     @SerializedName("page")
     @Expose
@@ -13,15 +13,12 @@ public class MovieListUpcoming {
     @SerializedName("results")
     @Expose
     private List<Result> results = null;
-    @SerializedName("dates")
-    @Expose
-    private Dates dates;
-    @SerializedName("total_pages")
-    @Expose
-    private Integer totalPages;
     @SerializedName("total_results")
     @Expose
     private Integer totalResults;
+    @SerializedName("total_pages")
+    @Expose
+    private Integer totalPages;
 
     public Integer getPage() {
         return page;
@@ -39,12 +36,12 @@ public class MovieListUpcoming {
         this.results = results;
     }
 
-    public Dates getDates() {
-        return dates;
+    public Integer getTotalResults() {
+        return totalResults;
     }
 
-    public void setDates(Dates dates) {
-        this.dates = dates;
+    public void setTotalResults(Integer totalResults) {
+        this.totalResults = totalResults;
     }
 
     public Integer getTotalPages() {
@@ -53,14 +50,6 @@ public class MovieListUpcoming {
 
     public void setTotalPages(Integer totalPages) {
         this.totalPages = totalPages;
-    }
-
-    public Integer getTotalResults() {
-        return totalResults;
-    }
-
-    public void setTotalResults(Integer totalResults) {
-        this.totalResults = totalResults;
     }
 
 }

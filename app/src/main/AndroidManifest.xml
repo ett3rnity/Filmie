@@ -3,6 +3,7 @@
     package="com.alexanderivanets.filmie">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,7 +24,11 @@
         <activity
             android:name=".FilmInfoActivity"
             android:label="@string/title_activity_film_info"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".YouTubePlayerActivity" />
+        <activity android:name=".MVPAttempt.settings.SettingsActivity"
+            android:label="Settings"
+            android:theme="@style/AlertDialog.AppCompat.Light"/>
     </application>
 
 </manifest>

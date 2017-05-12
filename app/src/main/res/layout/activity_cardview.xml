@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="180dp"
     android:id="@+id/card_view"
-    card_view:cardCornerRadius="4dp"
+    card_view:cardCornerRadius="2dp"
     android:layout_margin="2dp">
 
     <RelativeLayout android:layout_width="match_parent"
@@ -24,12 +24,16 @@
         <TextView android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/card_view_tv_filmName"
-            android:textSize="25sp"
+            android:textSize="22sp"
             android:textColor="@android:color/white"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp" />
+            android:layout_marginBottom="12dp"
+            android:layout_marginStart="8dp"
+            android:shadowColor="#062b68"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"/>
 
         <ImageView android:layout_width="wrap_content"
             android:layout_height="wrap_content"

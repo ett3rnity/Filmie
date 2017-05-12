@@ -1,4 +1,4 @@
-package com.alexanderivanets.filmie;
+package com.alexanderivanets.filmie.MVPAttempt;
 
 import android.graphics.Bitmap;
 import android.widget.ImageView;
@@ -13,7 +13,15 @@ public class CardInfo {
     private Bitmap mFilmPic;
     private Bitmap mFilmStat;
     private String mFilmId;
+    private String mTrailerPath;
 
+    public String getmTrailerPath() {
+        return mTrailerPath;
+    }
+
+    public void setmTrailerPath(String mTrailerPath) {
+        this.mTrailerPath = mTrailerPath;
+    }
 
     public void setmFilmName(String mFileName) {
         this.mFilmName = mFileName;

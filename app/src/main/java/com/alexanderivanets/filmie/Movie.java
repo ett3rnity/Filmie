@@ -6,7 +6,9 @@ package com.alexanderivanets.filmie;
 
 /*
 * class for creating element of movie with all of information (for new activity)
-*
+*DEPRECATED
+* haven`t delete only because it is one of the oldest classes,so I can check,how long does it takes me to
+* create this app(17.04.2017)
 *
 * */
 

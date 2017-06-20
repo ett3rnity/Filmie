@@ -148,7 +148,7 @@ public class FilmBlockAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             @Override
             public void onThumbnailError(YouTubeThumbnailView youTubeThumbnailView, YouTubeThumbnailLoader.ErrorReason errorReason) {
-
+                thumbnailLoader.release();
             }
 
         });

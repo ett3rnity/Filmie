@@ -1,6 +1,7 @@
 package com.alexanderivanets.filmie;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,15 +20,17 @@ public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
 
     private List<CardInfo> cardList;
     private Context context;
+    private String className;
 
 
     CardInfo ci;
 
 
-    public CardAdapter(List<CardInfo> cardList, Context context) {
+    public CardAdapter(List<CardInfo> cardList, Context context, String className) {
 
         this.cardList = cardList;
         this.context = context;
+        this.className = className;
     }
 
     public void addInfoCardAdapter(List<CardInfo> cardList){
@@ -44,24 +47,19 @@ public class CardAdapter extends RecyclerView.Adapter<CardViewHolder> {
     public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_cardview, parent, false);
 
-        return new CardViewHolder(itemView);
+        return new CardViewHolder(itemView,className);
     }
 
     @Override
     public void onBindViewHolder(CardViewHolder holder, int position) {
         ci = cardList.get(position);
-        holder.mFilmPic.setImageBitmap(ci.getmFilmPic());
+
         holder.mFilmName.setText(ci.getmFilmName());
         holder.mFilmStat.setImageBitmap(ci.getmFilmStat());
         holder.mFilmId.setText(ci.getmFilmId());
-
         Picasso.with(context).load(cardList.get(position).getmTrailerPath()).fit().into(holder.mFilmPic);
 
-
     }
-
-
-
 
     @Override
     public int getItemCount() {

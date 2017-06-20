@@ -8,12 +8,16 @@
     card_view:cardCornerRadius="2dp"
     android:layout_margin="2dp">
 
-    <RelativeLayout android:layout_width="match_parent"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/card_view_iv_filmPic" />
+            android:id="@+id/card_view_iv_filmPic"
+            android:background="@drawable/clapperboard"/>
+
 
         <TextView
             android:layout_width="wrap_content"
@@ -21,7 +25,8 @@
             android:id="@+id/card_view_tv_filmId"
             android:visibility="invisible"/>
 
-        <TextView android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/card_view_tv_filmName"
             android:textSize="22sp"
@@ -35,7 +40,8 @@
             android:shadowDy="2"
             android:shadowRadius="2"/>
 
-        <ImageView android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/card_view_iv_filmStat"
             android:layout_alignParentEnd="true"

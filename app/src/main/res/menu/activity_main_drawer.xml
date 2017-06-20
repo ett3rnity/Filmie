@@ -6,8 +6,8 @@
     <group android:checkableBehavior="single">
         <item android:id="@+id/nav_popular"
             android:title="Popular" />
-        <item android:id="@+id/nav_searchForMovie"
-            android:title="Search for movie" />
+        <item android:id="@+id/nav_genres"
+            android:title="Movies by genres" />
         <item android:id="@+id/nav_mostWanted"
             android:title="Most wanted" />
         <item android:id="@+id/nav_nowPlaying"

@@ -14,6 +14,15 @@ public class CardInfo {
     private Bitmap mFilmStat;
     private String mFilmId;
     private String mTrailerPath;
+    private String mFilmVote;
+
+    public String getmFilmVote() {
+        return mFilmVote;
+    }
+
+    public void setmFilmVote(String mFilmVote) {
+        this.mFilmVote = mFilmVote;
+    }
 
     public String getmTrailerPath() {
         return mTrailerPath;

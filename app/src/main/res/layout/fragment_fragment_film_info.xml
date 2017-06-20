@@ -1,8 +1,13 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.alexanderivanets.filmie.FragmentFilmInfo">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
      <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
@@ -10,5 +15,57 @@
         android:id="@+id/filminfo_recyclerview">
 
     </android.support.v7.widget.RecyclerView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Similar movies"
+        android:textColor="#00701a"
+        android:layout_marginTop="30dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="22sp"
+        android:id="@+id/tv_similar"
+        android:shadowColor="#062b68"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1"
+        android:layout_below="@id/filminfo_recyclerview"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="8dp"
+        android:id="@+id/filminfo_rv_similar"
+        android:layout_below="@id/tv_similar">
+
+    </android.support.v7.widget.RecyclerView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommended movies"
+            android:layout_centerHorizontal="true"
+            android:textSize="22sp"
+            android:shadowColor="#062b68"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1"
+            android:id="@+id/tv_recommended"
+            android:layout_below="@id/filminfo_rv_similar"
+            android:textColor="#00701a"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="15dp"
+        android:id="@+id/filminfo_rv_recommended"
+        android:layout_below="@id/tv_recommended">
+
+    </android.support.v7.widget.RecyclerView>
+
+    </RelativeLayout>
 
 </FrameLayout>

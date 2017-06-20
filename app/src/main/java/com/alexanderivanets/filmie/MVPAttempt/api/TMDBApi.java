@@ -2,6 +2,7 @@ package com.alexanderivanets.filmie.MVPAttempt.api;
 
 import com.alexanderivanets.filmie.MVPAttempt.popular.PopularModel;
 import com.alexanderivanets.filmie.MVPAttempt.searchfilm.SearchFilmResponse;
+import com.alexanderivanets.filmie.MVPAttempt.similar.SimilarMovies;
 import com.alexanderivanets.filmie.network.selectedmovie.SelectedFilmInfo;
 import com.alexanderivanets.filmie.MVPAttempt.upcoming.UpcomingModel;
 import com.alexanderivanets.filmie.network.youtuberesponse.YouTubeResponse;
@@ -31,5 +32,14 @@ public interface TMDBApi {
 
     @GET("/3/search/movie/")
     Call<SearchFilmResponse>getSearchFilmList(@Query("query") String mQuery, @Query("api_key") String mApiKey);
+
+    @GET("/3/movie/{mFilmId}/similar")
+    Call<SimilarMovies>getSimilarList(@Path("mFilmId") String mFilmId, @Query("api_key") String mApiKey, @Query("language") String mLang);
+
+    @GET("/3/movie/{mFilmId}/recommendations")
+    Call<SimilarMovies>getRecomendationsList(@Path("mFilmId") String mFilmId, @Query("api_key") String mApiKey, @Query("language") String mLang);
+
+    @GET("/genre/movie/list")
+    Call<>getGenresList();
 
 }

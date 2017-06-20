@@ -134,7 +134,7 @@ public class UpcomingView extends Fragment  implements UpcomingMVP.VtoPInterface
     @Override
     public void onShowNewInfo(List<CardInfo> cardInfoList, String page) {
         if(cardAdapter == null){
-            cardAdapter = new CardAdapter(cardInfoList,getContext());
+            cardAdapter = new CardAdapter(cardInfoList,getContext(),"upcoming");
             upcoming_recyclerView.setAdapter(cardAdapter);
         }
 

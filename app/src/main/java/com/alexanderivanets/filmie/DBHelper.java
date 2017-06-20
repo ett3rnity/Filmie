@@ -38,16 +38,4 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public void addToDb(SQLiteDatabase db,int mId, String mTitle, String mGenres, String mOverview, String mDuration,
-                        String mReleaseDate){
-        String insertToDBScript = "INSERT INTO filmList VALUES ( " +
-                  mId + ", "
-                + mTitle + ", "
-                + mGenres + ", "
-                + mOverview +", "
-                + mDuration + ", "
-                + mReleaseDate + " );";
-
-        db.execSQL(insertToDBScript);
-    }
 }

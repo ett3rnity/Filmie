@@ -1,9 +1,13 @@
 package com.alexanderivanets.filmie;
 
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import static java.security.AccessController.getContext;
 
 /**
  * Created by root on 01.04.17.
@@ -19,7 +23,6 @@ public class FilmBlockHolder extends RecyclerView.ViewHolder {
 
         mFilmBlockBody = (TextView)itemView.findViewById(R.id.tv_filmblock_body);
         mFilmBlockHead = (TextView)itemView.findViewById(R.id.tv_filmblock_head);
-        //mFilmBlockStat = (ImageView) itemView.findViewById(R.id.iv_filmblock_stat);
     }
 
     public ImageView getmFilmBlockStat() {

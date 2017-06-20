@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.alexanderivanets.filmie.CardAdapter;
+import com.alexanderivanets.filmie.CheckInternetAvailibiality;
 import com.alexanderivanets.filmie.MVPAttempt.CardInfo;
 import com.alexanderivanets.filmie.MVPAttempt.settings.SettingsActivity;
 import com.alexanderivanets.filmie.R;
@@ -94,14 +97,27 @@ public class PopularView extends Fragment implements PopularMVP.VtoPInterface {
         popular_recyclerView.setHasFixedSize(true);
 
         //handle different orientation film per line count
-        if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+        int mOrientation = getActivity().getResources().getConfiguration().orientation;
+        if(mOrientation == Configuration.ORIENTATION_LANDSCAPE){
             popular_recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
         }
         else{
             popular_recyclerView.setLayoutManager(new GridLayoutManager(getContext(),1));
         }
 
-        assert popular_recyclerView != null;
+        popular_recyclerView.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                return null;
+            }
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            }
+            @Override
+            public int getItemCount() {
+                return 0;
+            }
+        });
         //hardcode
 
         popular_recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -116,8 +132,8 @@ public class PopularView extends Fragment implements PopularMVP.VtoPInterface {
                 LinearLayoutManager llm1 = (LinearLayoutManager)recyclerView.getLayoutManager();
                 int lastvisiblepos = llm1.findLastCompletelyVisibleItemPosition();
                 if (lastvisiblepos !=RecyclerView.NO_POSITION && lastvisiblepos == cardAdapter.getItemCount() -1){
-                    pInterfaceImpl.onGetInfo(page, mLang,mImageQuality);
-                }
+                        pInterfaceImpl.onGetInfo(page, mLang, mImageQuality);
+                    }
             }
         });
 
@@ -125,7 +141,8 @@ public class PopularView extends Fragment implements PopularMVP.VtoPInterface {
 
         pInterfaceImpl = new PopularPresenter(this);
 
-        pInterfaceImpl.onGetInfo(page,mLang,mImageQuality);
+        pInterfaceImpl.onGetInfo(page, mLang, mImageQuality);
+
 
         return v;
     }
@@ -159,7 +176,7 @@ public class PopularView extends Fragment implements PopularMVP.VtoPInterface {
     public void onShowNewInfo(List<CardInfo>cardInfoList,String page) {
 
         if(cardAdapter == null){
-            cardAdapter = new CardAdapter(cardInfoList,getContext());
+            cardAdapter = new CardAdapter(cardInfoList,getContext(),"popular");
             popular_recyclerView.setAdapter(cardAdapter);
         }
 

@@ -1,21 +1,18 @@
 package com.alexanderivanets.filmie;
 
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -27,13 +24,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alexanderivanets.filmie.MVPAttempt.CardInfo;
 import com.alexanderivanets.filmie.MVPAttempt.api.TMDBApi;
+import com.alexanderivanets.filmie.MVPAttempt.similar.SimilarMovies;
 import com.alexanderivanets.filmie.network.selectedmovie.Genre;
 import com.alexanderivanets.filmie.network.selectedmovie.SelectedFilmInfo;
 import com.alexanderivanets.filmie.network.youtuberesponse.YouTubeResponse;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -68,24 +66,31 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
     boolean isIntoDb;
     ImageView toolbarpic;
     String filmId;
+    String className;//name of checked nav view item(new films/db interactions)
     TextView tv_filminfo_filmid;
     RecyclerView filminfo_recyclerview;
+    RecyclerView filminfo_rv_similar;
+    RecyclerView filminfo_rv_recommended;
     LinearLayoutManager llm_filminfo;
     FilmBlockAdapter filmBlockAdapter;
+    ProgressDialog progressDialog;
+
+    CollapsingToolbarLayout collapsingToolbar;
 
     private TMDBApi tmdbApi;
     private  TMDBApi tmdbApi1;
+    private TMDBApi tmdbApi2;
+    private  TMDBApi tmdbApi3;
     private Retrofit retrofit;
 
     private SelectedFilmInfo selectedFilmInfo;
-    private YouTubeResponse youTubeResponse;
-
-    YouTubePlayerSupportFragment youTubePlayerSupportFragment;
     private YouTubePlayer.OnInitializedListener onInitializedListener;
-    String videoId;
 
     GetAllFilmInfo getAllFilmInfo;
     AddTrailerToList addTrailerToList;
+    GetSimilarInfo getSimilarInfo;
+    GetRecommededInfo getRecommededInfo;
+
 
     SharedPreferences sharedPreferences;
     String mLang;
@@ -121,6 +126,8 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
             //mParam1 = getArguments().getString(ARG_PARAM1);
             //mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
 
@@ -130,10 +137,14 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_fragment_film_info, container, false);
 
+        collapsingToolbar =
+                (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
+        toolbarpic = (ImageView) getActivity().findViewById(R.id.iv_filminfo_toolbarpic);
 
         Bundle bundle = this.getArguments();
         filmId = bundle.getString("id");
         isIntoDb = bundle.getBoolean("isIntoDb");
+        className = bundle.getString("className");
         llm_filminfo = new LinearLayoutManager(getActivity());
         llm_filminfo.setOrientation(LinearLayoutManager.VERTICAL);
 
@@ -141,17 +152,59 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
         filminfo_recyclerview.setLayoutManager(llm_filminfo);
         filminfo_recyclerview.setNestedScrollingEnabled(false);
 
+        filminfo_rv_recommended = (RecyclerView)v.findViewById(R.id.filminfo_rv_recommended);
+        filminfo_rv_similar = (RecyclerView)v.findViewById(R.id.filminfo_rv_similar);
+
+        filminfo_rv_recommended.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
+
+        filminfo_rv_similar.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
+
+
 
         if(getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-            filminfo_recyclerview.setLayoutManager(new GridLayoutManager(getContext(),2));
+            filminfo_recyclerview.setLayoutManager(new StaggeredGridLayoutManager(2, 1));
         }
         else{
             filminfo_recyclerview.setLayoutManager(new StaggeredGridLayoutManager(1,Configuration.ORIENTATION_PORTRAIT));
         }
 
 
-        //try assert recyclerview !=null
-        filminfo_recyclerview.setAdapter(new RecyclerView.Adapter() {
+        setAdapter(filminfo_recyclerview);
+        setAdapter(filminfo_rv_recommended);
+        setAdapter(filminfo_rv_similar);
+
+
+
+        //hardcode
+
+        getSettingsPreference();
+
+
+        if(!isIntoDb || !className.equals("myDB")) {
+            getAllFilmInfo = new GetAllFilmInfo();
+            getAllFilmInfo.execute();
+
+            addTrailerToList = new AddTrailerToList();
+            addTrailerToList.execute();
+
+            getSimilarInfo = new GetSimilarInfo();
+            getSimilarInfo.execute();
+
+            getRecommededInfo = new GetRecommededInfo();
+            getRecommededInfo.execute();
+        }
+        else{
+            filmIsAlreadyInDb();
+        }
+
+        onInitializedListener = this;
+
+        return v;
+    }
+
+
+    void setAdapter(RecyclerView rv){
+        rv.setAdapter(new RecyclerView.Adapter() {
             @Override
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 return null;
@@ -167,26 +220,6 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
                 return 0;
             }
         });
-
-        //hardcode
-
-        getSettingsPreference();
-
-
-        if(!isIntoDb) {
-            getAllFilmInfo = new GetAllFilmInfo();
-            getAllFilmInfo.execute();
-
-            addTrailerToList = new AddTrailerToList();
-            addTrailerToList.execute();
-        }
-        else{
-            filmIsAlreadyInDb();
-        }
-
-        onInitializedListener = this;
-
-        return v;
     }
 
     void filmIsAlreadyInDb(){
@@ -227,9 +260,17 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
             }
             cursor.close();
 
+            CollapsingToolbarLayout collapsingToolbar =
+                    (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
+
+            if(selectedFilmInfo.getTitle().length()!=0) {
+                collapsingToolbar.setTitle(selectedFilmInfo.getTitle());
+            }
+
             ArrayList<Object> list = createFilmBlockList(selectedFilmInfo);
             filmBlockAdapter = new FilmBlockAdapter(list, getContext());
             filminfo_recyclerview.setAdapter(filmBlockAdapter);
+
         }
     }
 
@@ -250,6 +291,8 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
     }
 
     public class GetAllFilmInfo extends AsyncTask<Void, SelectedFilmInfo, SelectedFilmInfo> {
+
+
 
         @Override
         protected SelectedFilmInfo doInBackground(Void... params) {
@@ -278,16 +321,16 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
             filmBlockAdapter = new FilmBlockAdapter(list, getContext());
             filminfo_recyclerview.setAdapter(filmBlockAdapter);
 
-            CollapsingToolbarLayout collapsingToolbar =
-                    (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
+            if(selectedFilmInfo.getTitle().length()!=0) {
+                collapsingToolbar.setTitle(selectedFilmInfo.getTitle());
+            }
 
-            collapsingToolbar.setTitle(selectedFilmInfo.getTitle());
 
-            toolbarpic = (ImageView) getActivity().findViewById(R.id.iv_filminfo_toolbarpic);
 
-            String toolbarPicPath = "http://image.tmdb.org/t/p/w780/"+ selectedFilmInfo.getBackdropPath();
-
-            Picasso.with(getContext()).load(toolbarPicPath).fit().into(toolbarpic);
+            if(selectedFilmInfo.getBackdropPath()!=null) {
+                String toolbarPicPath = "http://image.tmdb.org/t/p/w780/" + selectedFilmInfo.getBackdropPath();
+                Picasso.with(getContext()).load(toolbarPicPath).fit().into(toolbarpic);
+            }
 
             //pls fix this hardcode for god
             ArrayList<String> listForDB = new ArrayList<>();
@@ -298,10 +341,25 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
 
             mListener.onInfoDownloaded(Integer.valueOf(filmId),listForDB.get(0),
                     listForDB.get(1),listForDB.get(2),listForDB.get(3),listForDB.get(4),selectedFilmInfo.getBackdropPath());
+
+            progressDialog.dismiss();
         }
     }
 
     public class AddTrailerToList extends AsyncTask<Void,YouTubeResponse,YouTubeResponse>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog = new ProgressDialog(getContext());
+            progressDialog.setTitle("Loading info");
+            progressDialog.setMessage("wait till data is downloaded");
+            progressDialog.show();
+
+
+        }
+
         @Override
         protected YouTubeResponse doInBackground(Void... params) {
             Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.themoviedb.org/")
@@ -324,20 +382,103 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
         @Override
         protected void onPostExecute(YouTubeResponse trailersResponse) {
             super.onPostExecute(trailersResponse);
+
             ArrayList<Object> trailer = createYouTubeBlock(trailersResponse);
-            filmBlockAdapter.addToAdapter(trailer);
-            filmBlockAdapter.notifyDataSetChanged();
+            if(trailer.size()!=0) {
+                filmBlockAdapter.addToAdapter(trailer);
+                filmBlockAdapter.notifyDataSetChanged();
+            }
+
+
         }
     }
 
 
+
+    public class GetSimilarInfo extends AsyncTask<Void,SimilarMovies,SimilarMovies>{
+
+        @Override
+        protected SimilarMovies doInBackground(Void... params) {
+            Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.themoviedb.org/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            tmdbApi2 = retrofit.create(TMDBApi.class);
+
+            Response<SimilarMovies> response2 = null;
+
+            try {
+                response2 = tmdbApi2.getSimilarList(filmId,Config.TMDB_API_KEY,mLang).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return response2.body();
+        }
+
+        @Override
+        protected void onPostExecute(SimilarMovies similarMovies) {
+            super.onPostExecute(similarMovies);
+            AnalogCardAdapter adapter = new AnalogCardAdapter(createSimilarBlock(similarMovies),getContext(),"similar");
+            filminfo_rv_similar.setAdapter(adapter);
+            }
+    }
+
+    public class GetRecommededInfo extends AsyncTask<Void,SimilarMovies,SimilarMovies>{
+
+        @Override
+        protected SimilarMovies doInBackground(Void... params) {
+            Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.themoviedb.org/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+            tmdbApi2 = retrofit.create(TMDBApi.class);
+
+            Response<SimilarMovies> response2 = null;
+
+            try {
+                response2 = tmdbApi2.getRecomendationsList(filmId,Config.TMDB_API_KEY,mLang).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return response2.body();
+        }
+
+        @Override
+        protected void onPostExecute(SimilarMovies similarMovies) {
+            super.onPostExecute(similarMovies);
+            AnalogCardAdapter adapter = new AnalogCardAdapter(createSimilarBlock(similarMovies),getContext(),"similar");
+            filminfo_rv_recommended.setAdapter(adapter);
+        }
+    }
+
+
+
+
+
+    public ArrayList<CardInfo>createSimilarBlock(SimilarMovies similarMovies){
+        ArrayList<CardInfo> output = new ArrayList<>();
+        for(int i=0; i<similarMovies.getResults().size();i++){
+            CardInfo ci = new CardInfo();
+            ci.setmFilmId(similarMovies.getResults().get(i).getId().toString());
+            ci.setmFilmName(similarMovies.getResults().get(i).getTitle());
+            ci.setmFilmVote(similarMovies.getResults().get(i).getVoteAverage().toString());
+            ci.setmTrailerPath("http://image.tmdb.org/t/p/w185/"+similarMovies.getResults().get(i).getPosterPath());
+            output.add(ci);
+        }
+        return output;
+    }
+
     public ArrayList<Object>createYouTubeBlock(YouTubeResponse trailersResponse){
         ArrayList<Object> list = new ArrayList<>();
+
+        if(trailersResponse.getResults().size()!=0){
         YoutubeBlock ytb1 = new YoutubeBlock();
         ytb1.setmYTHead("Trailer");
         ytb1.setmYTVideoId(trailersResponse.getResults().get(0).getKey());
 
         list.add(ytb1);
+        }
+
         return list;
     }
 
@@ -359,39 +500,56 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
             filmBlock1.setmBlockHead("Genres");
             int genresSize = selectedFilmInfo.getGenres().size();
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i=0;i<genresSize; i++){
-                stringBuilder.append(selectedFilmInfo.getGenres().get(i).getName());
-                if(i!=genresSize-1){
-                    stringBuilder.append(",");
+            if(genresSize!=0) {
+                for (int i = 0; i < genresSize; i++) {
+                    stringBuilder.append(selectedFilmInfo.getGenres().get(i).getName());
+                    if (i != genresSize - 1) {
+                        stringBuilder.append(",");
+                    }
                 }
+            }
+            else{
+                stringBuilder.append("no genres found");
             }
 
             filmBlock1.setmBlockBody(stringBuilder.toString());
             list.add(filmBlock1);
 
             filmBlock2.setmBlockHead("Overview");
-            filmBlock2.setmBlockBody(selectedFilmInfo.getOverview());
+            if(selectedFilmInfo.getOverview()!=null) {
+                filmBlock2.setmBlockBody(selectedFilmInfo.getOverview());
+            }
+            else{
+                filmBlock2.setmBlockBody("no overview found");
+            }
             list.add(filmBlock2);
 
             filmBlock3.setmBlockHead("Duration");
             stringBuilder.delete(0,stringBuilder.length());
-            stringBuilder.append(selectedFilmInfo.getRuntime().toString());
-            stringBuilder.append(" minutes");
+            if(selectedFilmInfo.getRuntime()!=null) {
+                stringBuilder.append(selectedFilmInfo.getRuntime().toString());
+                stringBuilder.append(" minutes");
+            }
+            else {
+                stringBuilder.append("no duration found");
+            }
             filmBlock3.setmBlockBody(stringBuilder.toString());
 
             list.add(filmBlock3);
 
             filmBlock4.setmBlockHead("Release Date");
-            filmBlock4.setmBlockBody(selectedFilmInfo.getReleaseDate());
+            if(selectedFilmInfo.getReleaseDate()!=null) {
+                filmBlock4.setmBlockBody(selectedFilmInfo.getReleaseDate());
+            }
+            else {
+                filmBlock4.setmBlockBody("no release date found");
+            }
             list.add(filmBlock4);
-
-
 
 
 
         return list;
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -408,17 +566,33 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if(!isIntoDb) {
-            getAllFilmInfo.cancel(true);
-            addTrailerToList.cancel(true);
+            if (getAllFilmInfo.getStatus() == AsyncTask.Status.RUNNING){
+                getAllFilmInfo.cancel(true);
         }
-        else{
+            if(addTrailerToList.getStatus()== AsyncTask.Status.RUNNING) {
+                addTrailerToList.cancel(true);
+                addTrailerToList.cancel(true);
+            }
+            if(getSimilarInfo!=null) {
+                if (getSimilarInfo.getStatus() == AsyncTask.Status.RUNNING) {
+                    getSimilarInfo.cancel(true);
+                }
+            }
+        }
+    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(progressDialog!=null && progressDialog.isShowing()){
+            progressDialog.dismiss();
         }
     }
 
@@ -438,6 +612,7 @@ public class FragmentFilmInfo extends Fragment implements YouTubePlayer.OnInitia
         void onInfoDownloaded(int mId, String mTitle, String mGenres, String mOverview, String mDuration,
                               String mReleaseDate,String backDropPath);
     }
+
 
 
 }

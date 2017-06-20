@@ -1,23 +1,30 @@
 package com.alexanderivanets.filmie;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.alexanderivanets.filmie.MVPAttempt.FilmInfo;
@@ -42,13 +49,20 @@ public class FilmInfoActivity extends AppCompatActivity implements FragmentFilmI
     DBHelper dbHelper;
     SQLiteDatabase userFilmDB;
     FloatingActionButton fab;
+    AppBarLayout appBar;
+
+    private AnimatedVectorDrawable mAddDrawable;
+    private AnimatedVectorDrawable mDoneDrawable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_film_info);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        appBar = (AppBarLayout)findViewById(R.id.app_bar);
+        setBarSize();
         setSupportActionBar(toolbar);
+
 
         alreadyInDb = false;
         deleteFromDb = false;
@@ -64,11 +78,14 @@ public class FilmInfoActivity extends AppCompatActivity implements FragmentFilmI
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mAddDrawable = (AnimatedVectorDrawable)getDrawable(R.drawable.ic_add_animatable);
+            mDoneDrawable = (AnimatedVectorDrawable)getDrawable(R.drawable.ic_done_animatable);
+        }
 
         //hardcode
         Intent intent = getIntent();
         filmId = intent.getStringExtra("id");
-
         fabInteractions();
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,9 +104,10 @@ public class FilmInfoActivity extends AppCompatActivity implements FragmentFilmI
         boolean isIntoDb = alreadyInDb;
         bundle.putBoolean("isIntoDb",isIntoDb);
         bundle.putString("id",sendFilmId);
+        bundle.putString("className",intent.getStringExtra("className"));
 
         try {
-            fragment = (android.support.v4.app.Fragment)fragmentClass.newInstance();
+            fragment = (Fragment) fragmentClass.newInstance();
             fragment.setArguments(bundle);
         } catch (InstantiationException e) {
             e.printStackTrace();
@@ -114,6 +132,17 @@ public class FilmInfoActivity extends AppCompatActivity implements FragmentFilmI
         imageLink = backDropPath;
     }
 
+
+    public void setBarSize(){
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            appBar.setLayoutParams(new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+
+        }
+
+    }
+
+
     public void fabInteractions(){
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM filmList;",null);
@@ -133,41 +162,61 @@ public class FilmInfoActivity extends AppCompatActivity implements FragmentFilmI
             }
 
         if(alreadyInDb){
-            fab.setImageResource(R.drawable.heart_checked_32px);
+            fab.setImageDrawable(mDoneDrawable);
         }
         else{
-            fab.setImageResource(R.drawable.heart_unchecked_32px);
+            fab.setImageDrawable(mAddDrawable);
         }
     }
 
 
     public void onFabClicked(){
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        if(!deleteFromDb){
-            fab.setImageResource(R.drawable.heart_unchecked_32px);
+        if(!deleteFromDb&&alreadyInDb){
+            //fab.setImageResource(R.drawable.heart_unchecked_32px);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                fab.setImageDrawable(mDoneDrawable);
+                mDoneDrawable.start();
+            }
+
             deleteFromDb = true;
         }
         else{
+
+            //fab.setImageResource(R.drawable.heart_checked_32px);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                fab.setImageDrawable(mAddDrawable);
+                mAddDrawable.start();
+            }
             if(!firstFabClick) {
                 onFilmAddToList(db, filmInfo);
                 firstFabClick = true;
+                deleteFromDb = false;
+                alreadyInDb = true;
             }
-            fab.setImageResource(R.drawable.heart_checked_32px);
-            deleteFromDb = false;
-            alreadyInDb = true;
+            else {
+                deleteFromDb = false;
+                alreadyInDb = true;
+            }
         }
 
     }
 
 
     public void onFilmAddToList(SQLiteDatabase db, FilmInfo filmInfo){
+
+        String overview = filmInfo.getOverview().replace('\'','`');
+        String title = filmInfo.getTitle().replace('\'','`');
+        String genre = filmInfo.getGenre().replace('\'','`');
+
+
         String insertToDBScript = "INSERT INTO filmList VALUES ( '" +
                 filmInfo.getId() + "', '"
-                + filmInfo.getTitle() + "', '"
-                + filmInfo.getGenre() + "', '"
-                + filmInfo.getOverview() +"', '"
+                + title + "', '"
+                + genre + "', '"
+                + overview +"', '"
                 + filmInfo.getDuration() + "', '"
-                + filmInfo.getReleaseDate() + "' );";
+                + filmInfo.getReleaseDate() + "');";
         db.execSQL(insertToDBScript);
 
         try {
@@ -238,5 +287,9 @@ public class FilmInfoActivity extends AppCompatActivity implements FragmentFilmI
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             onFilmDeleteFromList(db,filmId);
         }
+
     }
+
+
+
 }
